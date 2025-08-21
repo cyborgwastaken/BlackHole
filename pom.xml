@@ -136,7 +136,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.blackhole.BlackHoleSimulation</mainClass>
+                    <mainClass>com.blackhole.PhysicsDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>
