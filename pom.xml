@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                           http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.cyborgwastaken</groupId>
+    <artifactId>blackhole-simulation</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>Black Hole Simulation</name>
+    <description>A C++ black hole simulation project with gravitational lensing and ray tracing</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <cmake.build.directory>${project.build.directory}/cmake-build</cmake.build.directory>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- Clean plugin to remove build artifacts -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>build</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>.</directory>
+                            <includes>
+                                <include>black_hole</include>
+                                <include>black_hole.exe</include>
+                                <include>BlackHole2D</include>
+                                <include>BlackHole3D</include>
+                                <include>*.dll</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+            <!-- Exec plugin to run CMake commands -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <!-- Configure CMake -->
+                    <execution>
+                        <id>cmake-configure</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>cmake</executable>
+                            <workingDirectory>${basedir}</workingDirectory>
+                            <arguments>
+                                <argument>-B</argument>
+                                <argument>build</argument>
+                                <argument>-S</argument>
+                                <argument>.</argument>
+                                <!-- Add vcpkg toolchain if available -->
+                                <!-- Users can override this by setting -Dcmake.toolchain.file -->
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- Build with CMake -->
+                    <execution>
+                        <id>cmake-build</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>cmake</executable>
+                            <workingDirectory>${basedir}</workingDirectory>
+                            <arguments>
+                                <argument>--build</argument>
+                                <argument>build</argument>
+                                <argument>--config</argument>
+                                <argument>Release</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Profiles for different build configurations -->
+    <profiles>
+        <!-- Profile for vcpkg integration -->
+        <profile>
+            <id>vcpkg</id>
+            <activation>
+                <property>
+                    <name>vcpkg.toolchain.file</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>cmake-configure</id>
+                                <phase>compile</phase>
+                                <configuration>
+                                    <executable>cmake</executable>
+                                    <arguments>
+                                        <argument>-B</argument>
+                                        <argument>build</argument>
+                                        <argument>-S</argument>
+                                        <argument>.</argument>
+                                        <argument>-DCMAKE_TOOLCHAIN_FILE=${vcpkg.toolchain.file}</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Debug build profile -->
+        <profile>
+            <id>debug</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>cmake-build</id>
+                                <configuration>
+                                    <arguments>
+                                        <argument>--build</argument>
+                                        <argument>build</argument>
+                                        <argument>--config</argument>
+                                        <argument>Debug</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
